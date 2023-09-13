@@ -38,7 +38,7 @@ object ModelTest1 extends SimpleIOSuite with Checkers {
       val bson = document(
         "id" -> BSONLong(1L)
       )
-      val decodedD: BSONDocument = implicitly[BSONDocumentReader[CsTask]].read(bson)
+      val decodedD = implicitly[BSONDocumentReader[CsTask]].read(bson)
       expect.same(d, decodedD)
       expect.same(bson, dAsBson)
     }
