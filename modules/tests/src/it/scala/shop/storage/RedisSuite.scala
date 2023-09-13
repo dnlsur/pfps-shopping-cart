@@ -36,7 +36,7 @@ object RedisSuite extends ResourceSuite {
 
   override def sharedResource: Resource[IO, Res] =
     Redis[IO]
-      .utf8("redis://localhost")
+      .utf8("redis://redis")
       .beforeAll(_.flushAll)
 
   val Exp         = ShoppingCartExpiration(30.seconds)

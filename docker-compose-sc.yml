@@ -1,0 +1,71 @@
+version: '3.4'
+services:
+  shopping_cart:
+    restart: always
+    image: shopping-cart:latest
+    ports:
+      - "8080:8080"
+    environment:
+      - DEBUG=false
+      - SC_ACCESS_TOKEN_SECRET_KEY=5h0pp1ng_k4rt
+      - "SC_JWT_SECRET_KEY=-*5h0pp1ng_k4rt*-"
+      - 'SC_JWT_CLAIM={"uuid": "004b4457-71c3-4439-a1b2-03820263b59c"}'
+      - SC_ADMIN_USER_TOKEN=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1dWlkIjogIjAwNGI0NDU3LTcxYzMtNDQzOS1hMWIyLTAzODIwMjYzYjU5YyJ9.L97BnPScSAKY-BLkYu8G_n8h1U4LDOURUen14O22hD4
+      - SC_PASSWORD_SALT=06!grsnxXG0d*Pj496p6fuA*o
+      - SC_APP_ENV=test
+      - SC_POSTGRES_PASSWORD=my-password
+    depends_on:
+      - redis
+      - postgres
+      - mongodb
+
+  mongodb:
+    restart: always
+    image: mongo:7.0.1
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    ports:
+      - 27017:27017
+
+  mongosh:
+    image: mongo-express
+    restart: always
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: example
+      ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo:27017/
+    depends_on:
+      - mongodb
+
+  postgres:
+    restart: always
+    image: postgres:15.0-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      - DEBUG=false
+      - POSTGRES_DB=store
+      - POSTGRES_PASSWORD=my-password
+    volumes:
+      - ./modules/core/src/main/resources/tables.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    restart: always
+    image: redis:6.2.0
+    ports:
+      - "6379:6379"
+    environment:
+      - DEBUG=false
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 1s
+      timeout: 3s
+      retries: 30

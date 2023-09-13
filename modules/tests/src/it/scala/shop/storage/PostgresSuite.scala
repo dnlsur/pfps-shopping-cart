@@ -30,7 +30,7 @@ object PostgresSuite extends ResourceSuite {
   override def sharedResource: Resource[IO, Res] =
     Session
       .pooled[IO](
-        host = "localhost",
+        host = "postgres",
         port = 5432,
         user = "postgres",
         password = Some("my-password"),
